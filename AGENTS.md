@@ -15,13 +15,9 @@
   - 原本PDFを保存する
   - PDFから抽出したテキスト（ページ単位の中間成果物）も保存する
 - Database:
-  - Phase 1:
-    - SQLite を使用する
-    - 検索は SQLite FTS5（全文検索）を用いる
-    - 正本データ（documents / chunks）と検索用FTSテーブルを分離する
-  - Phase 2+ (future):
-    - PostgreSQL + pgvector への移行を前提とする
-    - 検索処理は `retrieve()` インターフェースで抽象化し、実装差し替え可能にする
+  - TiDB（さくらのクラウドのエンハンスドDB）を使用する
+  - ベクトル検索を標準とする
+  - 検索処理は `retrieve()` インターフェースで抽象化し、実装差し替え可能にする
 - Worker / Queue:
   - PDFの取り込み（ingest）は非同期ジョブとして実行する
   - キューは「さくらのシンプルMQ」を使用する
@@ -30,10 +26,10 @@
     - PDF取得 → テキスト抽出
     - テキスト抽出できない場合はOCRにフォールバック
     - テキストのチャンク化
-    - SQLite（chunks + FTS）への登録
+    - TiDBへの登録
 
 ## Retrieval / Answering policy
-- Phase 1では embedding / vector search は使わず、FTS5で候補チャンクを取得してRAGする
+- ベクトル検索で候補チャンクを取得してRAGする
 - LLMへの入力は「検索で得られた根拠チャンク」に限定し、根拠外の推測を禁止する
 - レスポンスは JSON で `answer` と `citations`（doc/page/quote）を返せる形にする
 
