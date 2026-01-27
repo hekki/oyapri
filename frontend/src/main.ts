@@ -8,6 +8,11 @@ type UploadResponse = {
 
 const app = document.querySelector<HTMLDivElement>("#app");
 
+const canonicalPath = "/uploads";
+if (window.location.pathname === "/") {
+  window.history.replaceState({}, "", canonicalPath);
+}
+
 if (!app) {
   throw new Error("appが見つかりません。");
 }

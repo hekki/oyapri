@@ -46,7 +46,7 @@ npm install
 npm run dev
 ```
 
-ブラウザで `http://localhost:5173` を開き、PDFをアップロードしてください。
+ブラウザで `http://localhost:5173/uploads` を開き、PDFをアップロードしてください。
 
 ### テスト
 
