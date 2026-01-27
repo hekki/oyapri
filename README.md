@@ -3,7 +3,6 @@
 ## 概要
 
 学校などで配布されるPDFプリントをアップロードし、内容を抽出(OCR含む)して検索/質問に根拠付きで回答できるようにするためのプロジェクトです。
-Phase 1ではSQLite + FTS5による検索でRAGを行い、Phase 2以降でembedding/pgvectorへの移行を想定しています。
 
 ## 起動手順
 
@@ -29,6 +28,20 @@ cp backend/.env.example backend/.env
 
 ```bash
 uv run --env-file backend/.env uvicorn app.main:app --reload --app-dir backend
+```
+
+### マイグレーション（TiDB）
+
+初回は `backend/migrations/0001_initial.sql` を適用します。
+
+```bash
+mysql \
+  -h "$TIDB_HOST" \
+  -P "$TIDB_PORT" \
+  -u "$TIDB_USER" \
+  -p"$TIDB_PASSWORD" \
+  "$TIDB_DATABASE" \
+  < backend/migrations/0001_initial.sql
 ```
 
 ### フロントエンド

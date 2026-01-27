@@ -1,0 +1,55 @@
+-- TiDB向けのDDL案（ベクトル型は後で確定）
+
+CREATE TABLE documents (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  uuid CHAR(36) NOT NULL UNIQUE,
+  title VARCHAR(255),
+  status VARCHAR(32) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE document_pages (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  uuid CHAR(36) NOT NULL UNIQUE,
+  doc_id BIGINT NOT NULL,
+  page_no INT NOT NULL,
+  text_source VARCHAR(16) NOT NULL,
+  char_count INT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_document_pages_doc_id_page_no (doc_id, page_no),
+  CONSTRAINT fk_document_pages_doc_id FOREIGN KEY (doc_id) REFERENCES documents(id)
+);
+
+CREATE TABLE chunks (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  uuid CHAR(36) NOT NULL UNIQUE,
+  doc_id BIGINT NOT NULL,
+  chunk_index INT NOT NULL,
+  content TEXT NOT NULL,
+  page_start INT,
+  page_end INT,
+  token_count INT,
+  embedding VECTOR(1024) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_chunks_doc_id_chunk_index (doc_id, chunk_index),
+  VECTOR INDEX idx_chunks_embedding ((VEC_COSINE_DISTANCE(embedding))) USING HNSW,
+  CONSTRAINT fk_chunks_doc_id FOREIGN KEY (doc_id) REFERENCES documents(id)
+);
+
+CREATE TABLE ingest_jobs (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  uuid CHAR(36) NOT NULL UNIQUE,
+  doc_id BIGINT NOT NULL,
+  status VARCHAR(32) NOT NULL,
+  attempts INT NOT NULL DEFAULT 0,
+  last_error TEXT,
+  queued_at TIMESTAMP,
+  started_at TIMESTAMP,
+  finished_at TIMESTAMP,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_ingest_jobs_doc_id FOREIGN KEY (doc_id) REFERENCES documents(id)
+);
