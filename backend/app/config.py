@@ -15,6 +15,9 @@ class Settings:
         self.mysql_password = os.environ.get("MYSQL_PASSWORD", "")
         self.mysql_database = os.environ.get("MYSQL_DATABASE", "")
         self.mysql_ca_path = os.environ.get("MYSQL_CA_PATH", "")
+        self.simplemq_endpoint = os.environ.get("SIMPLEMQ_ENDPOINT", "")
+        self.simplemq_queue_name = os.environ.get("SIMPLEMQ_QUEUE_NAME", "")
+        self.simplemq_api_token = os.environ.get("SIMPLEMQ_API_TOKEN", "")
 
 
 def get_settings() -> Settings:
