@@ -9,6 +9,12 @@ class Settings:
         self.s3_access_key_id = os.environ.get("S3_ACCESS_KEY_ID", "")
         self.s3_secret_access_key = os.environ.get("S3_SECRET_ACCESS_KEY", "")
         self.s3_force_path_style = os.environ.get("S3_FORCE_PATH_STYLE", "true").lower() == "true"
+        self.mysql_host = os.environ.get("MYSQL_HOST", "")
+        self.mysql_port = int(os.environ.get("MYSQL_PORT", "4000"))
+        self.mysql_user = os.environ.get("MYSQL_USER", "")
+        self.mysql_password = os.environ.get("MYSQL_PASSWORD", "")
+        self.mysql_database = os.environ.get("MYSQL_DATABASE", "")
+        self.mysql_ca_path = os.environ.get("MYSQL_CA_PATH", "")
 
 
 def get_settings() -> Settings:
