@@ -38,7 +38,7 @@ app.innerHTML = `
     <section class="note">
       <h2>次のステップ</h2>
       <ul>
-        <li>アップロード後にドキュメントIDが発行されます。</li>
+        <li>アップロード後に取り込み処理が開始されます。</li>
         <li>取り込みジョブが完了すると質問回答が可能になります。</li>
       </ul>
     </section>
@@ -86,8 +86,8 @@ form.addEventListener("submit", async (event) => {
       throw new Error(detail || "アップロードに失敗しました。");
     }
 
-    const data = (await response.json()) as UploadResponse;
-    setStatus(`完了: doc_id=${data.doc_id}`, "success");
+    await response.json();
+    setStatus("アップロード完了。取り込みを開始します。", "success");
     fileInput.value = "";
   } catch (error) {
     const message = error instanceof Error ? error.message : "予期せぬエラーです。";

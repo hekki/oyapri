@@ -30,17 +30,17 @@ cp backend/.env.example backend/.env
 uv run --env-file backend/.env uvicorn app.main:app --reload --app-dir backend
 ```
 
-### マイグレーション（TiDB）
+### マイグレーション（MySQL互換DB）
 
 初回は `backend/migrations/0001_initial.sql` を適用します。
 
 ```bash
 mysql \
-  -h "$TIDB_HOST" \
-  -P "$TIDB_PORT" \
-  -u "$TIDB_USER" \
-  -p"$TIDB_PASSWORD" \
-  "$TIDB_DATABASE" \
+  -h "$MYSQL_HOST" \
+  -P "$MYSQL_PORT" \
+  -u "$MYSQL_USER" \
+  -p"$MYSQL_PASSWORD" \
+  "$MYSQL_DATABASE" \
   < backend/migrations/0001_initial.sql
 ```
 
