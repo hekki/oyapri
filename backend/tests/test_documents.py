@@ -11,7 +11,9 @@ class TestDocuments(unittest.TestCase):
 
     def test_originals_object_key(self) -> None:
         doc_id = "abc"
-        self.assertEqual(originals_object_key(doc_id), "originals/abc.pdf")
+        self.assertEqual(originals_object_key(doc_id, "png"), "originals/abc.png")
+        self.assertEqual(originals_object_key(doc_id, ".jpg"), "originals/abc.jpg")
+        self.assertEqual(originals_object_key(doc_id, "jpeg", page_no=2), "originals/abc/pages/2.jpeg")
 
 
 if __name__ == "__main__":

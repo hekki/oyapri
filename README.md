@@ -2,7 +2,7 @@
 
 ## 概要
 
-学校などで配布されるPDFプリントをアップロードし、内容を抽出(OCR含む)して検索/質問に根拠付きで回答できるようにするためのプロジェクトです。
+学校などで配布されるプリント画像（PNG/JPEG）をアップロードし、内容をOCRで抽出して検索/質問に根拠付きで回答できるようにするためのプロジェクトです。
 
 ## 起動手順
 
@@ -28,6 +28,20 @@ cp backend/.env.example backend/.env
 
 ```bash
 uv run --env-file backend/.env uvicorn app.main:app --reload --app-dir backend
+```
+
+### ワーカー（SimpleMQ）
+
+メッセージをポーリングして取り込み処理を実行します。
+
+```bash
+PYTHONPATH=backend uv run --env-file backend/.env python -m app.worker.simplemq_runner
+```
+
+単発で `job_id` を指定して処理する場合:
+
+```bash
+PYTHONPATH=backend uv run --env-file backend/.env python -m app.worker.ingest <job_id>
 ```
 
 ### マイグレーション（MySQL互換DB）
@@ -59,7 +73,7 @@ npm install
 npm run dev
 ```
 
-ブラウザで `http://localhost:5173/uploads` を開き、PDFをアップロードしてください。
+ブラウザで `http://localhost:5173/uploads` を開き、画像をアップロードしてください。
 
 ### テスト
 

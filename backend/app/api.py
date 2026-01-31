@@ -11,26 +11,36 @@ router = APIRouter(prefix="/api/v1")
 
 
 @router.put("/uploads")
-async def upload_pdf(file: UploadFile = File(...)) -> dict:
-    if file.content_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="PDFのみ対応しています。")
+async def upload_images(files: list[UploadFile] = File(...)) -> dict:
+    if not files:
+        raise HTTPException(status_code=400, detail="画像を選択してください。")
 
     settings = get_settings()
     if not settings.s3_bucket:
         raise HTTPException(status_code=500, detail="S3設定が不足しています。")
 
+    for file in files:
+        if not file.content_type or file.content_type not in {"image/png", "image/jpeg"}:
+            raise HTTPException(status_code=400, detail="PNG/JPEGのみ対応しています。")
+
     doc_uuid = new_doc_id()
-    object_key = originals_object_key(doc_uuid)
+    object_keys: list[str] = []
 
     doc_id = create_document(
         uuid=doc_uuid,
         status="pending",
-        original_filename=file.filename,
+        original_filename=files[0].filename if files else None,
     )
 
     storage = S3Storage(settings)
     try:
-        storage.upload_pdf(object_key, file.file)
+        for index, file in enumerate(files, start=1):
+            content_type = file.content_type or ""
+            ext = "png" if content_type == "image/png" else "jpg"
+            page_no = None if len(files) == 1 else index
+            object_key = originals_object_key(doc_uuid, ext, page_no)
+            storage.upload_image(object_key, file.file, content_type)
+            object_keys.append(object_key)
     except Exception:
         update_document_status(doc_id, "failed")
         raise
@@ -49,6 +59,6 @@ async def upload_pdf(file: UploadFile = File(...)) -> dict:
         "doc_id": doc_id,
         "doc_uuid": doc_uuid,
         "job_id": job_id,
-        "object_key": object_key,
+        "object_keys": object_keys,
         "bucket": settings.s3_bucket,
     }
