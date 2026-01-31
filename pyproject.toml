@@ -8,6 +8,8 @@ dependencies = [
   "boto3==1.34.162",
   "python-multipart==0.0.9",
   "pymysql==1.1.1",
+  "pillow==10.4.0",
+  "pytesseract==0.3.10",
 ]
 
 [dependency-groups]

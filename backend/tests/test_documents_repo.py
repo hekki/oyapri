@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from app.repositories.documents import create_document, update_document_status
+from app.repositories.documents import create_document, get_document, update_document_status
 
 
 class TestDocumentsRepository(unittest.TestCase):
@@ -32,3 +32,15 @@ class TestDocumentsRepository(unittest.TestCase):
         update_document_status(doc_id=7, status="failed")
 
         mock_cursor.execute.assert_called_once()
+
+    @patch("app.repositories.documents.get_connection")
+    def test_get_document(self, mock_get_connection: MagicMock) -> None:
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = {"id": 1, "uuid": "doc-uuid", "status": "pending"}
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_get_connection.return_value.__enter__.return_value = mock_conn
+
+        doc = get_document(doc_id=1)
+
+        self.assertEqual(doc, {"id": 1, "uuid": "doc-uuid", "status": "pending"})
