@@ -26,3 +26,40 @@ class S3Storage:
             key,
             ExtraArgs={"ContentType": "application/pdf"},
         )
+
+    def upload_image(self, key: str, body: BinaryIO, content_type: str) -> None:
+        self._client.upload_fileobj(
+            body,
+            self._bucket,
+            key,
+            ExtraArgs={"ContentType": content_type},
+        )
+
+    def upload_text(self, key: str, text: str) -> None:
+        self._client.put_object(
+            Bucket=self._bucket,
+            Key=key,
+            Body=text.encode("utf-8"),
+            ContentType="text/plain; charset=utf-8",
+        )
+
+    def download_bytes(self, key: str) -> bytes:
+        response = self._client.get_object(Bucket=self._bucket, Key=key)
+        return response["Body"].read()
+
+    def list_keys(self, prefix: str) -> list[str]:
+        keys: list[str] = []
+        continuation_token: str | None = None
+        while True:
+            params = {"Bucket": self._bucket, "Prefix": prefix}
+            if continuation_token:
+                params["ContinuationToken"] = continuation_token
+            response = self._client.list_objects_v2(**params)
+            for item in response.get("Contents", []):
+                key = item.get("Key")
+                if key:
+                    keys.append(key)
+            if not response.get("IsTruncated"):
+                break
+            continuation_token = response.get("NextContinuationToken")
+        return keys

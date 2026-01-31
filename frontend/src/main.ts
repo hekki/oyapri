@@ -2,7 +2,7 @@ import "./style.css";
 
 type UploadResponse = {
   doc_id: string;
-  object_key: string;
+  object_keys: string[];
   bucket: string;
 };
 
@@ -20,16 +20,16 @@ if (!app) {
 app.innerHTML = `
   <main class="page">
     <section class="card">
-      <div class="eyebrow">PDFアップロード</div>
-      <h1>プリントを取り込み</h1>
+      <div class="eyebrow">画像アップロード</div>
+      <h1>プリント画像を取り込み</h1>
       <p class="lead">
-        PDFをアップロードすると、内容の抽出処理に進みます。
-        スキャンPDFの場合も後続でOCRにフォールバックします。
+        画像をアップロードすると、内容の抽出処理に進みます。
+        PNG/JPEGに対応しています。
       </p>
       <form id="upload-form" class="form">
         <label class="file-input">
-          <input id="file" type="file" accept="application/pdf" required />
-          <span id="file-label">PDFを選択</span>
+          <input id="file" type="file" accept="image/png,image/jpeg" multiple required />
+          <span id="file-label">画像を選択</span>
         </label>
         <button id="submit" type="submit">アップロード</button>
       </form>
@@ -63,9 +63,9 @@ const setStatus = (message: string, tone: "info" | "error" | "success") => {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  const file = fileInput.files?.[0];
-  if (!file) {
-    setStatus("PDFを選択してください。", "error");
+  const files = fileInput.files;
+  if (!files || files.length === 0) {
+    setStatus("画像を選択してください。", "error");
     return;
   }
 
@@ -74,7 +74,9 @@ form.addEventListener("submit", async (event) => {
 
   try {
     const formData = new FormData();
-    formData.append("file", file);
+    Array.from(files).forEach((file) => {
+      formData.append("files", file);
+    });
 
     const response = await fetch("/api/v1/uploads", {
       method: "PUT",
@@ -98,12 +100,15 @@ form.addEventListener("submit", async (event) => {
 });
 
 fileInput.addEventListener("change", () => {
-  const file = fileInput.files?.[0];
-  if (!file) {
-    fileLabel.textContent = "PDFを選択";
+  const files = fileInput.files;
+  if (!files || files.length === 0) {
+    fileLabel.textContent = "画像を選択";
     setStatus("", "info");
     return;
   }
-  fileLabel.textContent = file.name;
-  setStatus(`選択中: ${file.name}`, "info");
+  const names = Array.from(files)
+    .map((file) => file.name)
+    .join(", ");
+  fileLabel.textContent = `${files.length}件選択`;
+  setStatus(`選択中: ${names}`, "info");
 });

@@ -18,6 +18,7 @@ class Settings:
         self.simplemq_endpoint = os.environ.get("SIMPLEMQ_ENDPOINT", "")
         self.simplemq_queue_name = os.environ.get("SIMPLEMQ_QUEUE_NAME", "")
         self.simplemq_api_token = os.environ.get("SIMPLEMQ_API_TOKEN", "")
+        self.ocr_lang = os.environ.get("OCR_LANG", "jpn")
 
 
 def get_settings() -> Settings:
