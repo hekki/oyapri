@@ -27,6 +27,22 @@ OCRとEmbeddingの設定もこのファイルで行います。
 チャンク分割は `CHUNK_SIZE` と `CHUNK_OVERLAP` で調整できます。embeddingの上限に合わせて小さめに設定してください。
 さらに上限対策として `EMBEDDING_MAX_TOKENS` と `EMBEDDING_CHARS_PER_TOKEN` に基づき、文字数の上限で再分割します。
 
+### 検索API
+
+```bash
+curl -X POST http://localhost:8000/api/v1/search \
+  -H "Content-Type: application/json" \
+  -d '{"query":"二次方程式","top_k":5}'
+```
+
+### 質問API（RAG）
+
+```bash
+curl -X POST http://localhost:8000/api/v1/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question":"二次方程式の解の公式は？","top_k":5}'
+```
+
 3. 起動
 
 ```bash
@@ -76,7 +92,7 @@ npm install
 npm run dev
 ```
 
-ブラウザで `http://localhost:5173/uploads` を開き、画像をアップロードしてください。
+ブラウザで `http://localhost:5173/` を開き、画像をアップロードしてください。
 
 ### テスト
 
