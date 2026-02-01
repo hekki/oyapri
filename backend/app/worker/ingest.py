@@ -3,7 +3,9 @@ import sys
 
 from app.config import get_settings
 from app.domain.documents import new_doc_id, ocr_text_object_key
+from app.embeddings import SakuraEmbeddings
 from app.ocr import TesseractOCR
+from app.repositories.chunks import create_chunk
 from app.repositories.document_pages import upsert_document_page
 from app.repositories.documents import get_document, update_document_status
 from app.repositories.ingest_jobs import (
@@ -36,6 +38,41 @@ def _list_original_image_keys(storage: S3Storage, doc_uuid: str) -> list[tuple[i
     return []
 
 
+def _split_by_chars(text: str, size: int, overlap: int) -> list[str]:
+    if size <= 0:
+        return [text] if text else []
+    if overlap < 0:
+        overlap = 0
+    if overlap >= size:
+        overlap = max(size - 1, 0)
+
+    chunks: list[str] = []
+    start = 0
+    length = len(text)
+    while start < length:
+        end = min(start + size, length)
+        chunk = text[start:end]
+        if chunk:
+            chunks.append(chunk)
+        if end == length:
+            break
+        start = end - overlap
+    return chunks
+
+
+def _cap_chunks_by_max_chars(chunks: list[tuple[int, str]], max_chars: int) -> list[tuple[int, str]]:
+    if max_chars <= 0:
+        return chunks
+    capped: list[tuple[int, str]] = []
+    for page_no, text in chunks:
+        if len(text) <= max_chars:
+            capped.append((page_no, text))
+            continue
+        for sub in _split_by_chars(text, max_chars, 0):
+            capped.append((page_no, sub))
+    return capped
+
+
 def process_ingest_job(job_id: int) -> None:
     job = get_ingest_job(job_id)
     if not job:
@@ -56,12 +93,14 @@ def process_ingest_job(job_id: int) -> None:
     settings = get_settings()
     storage = S3Storage(settings)
     ocr = TesseractOCR(lang=settings.ocr_lang)
+    embeddings = SakuraEmbeddings()
 
     try:
         page_items = _list_original_image_keys(storage, doc["uuid"])
         if not page_items:
             raise RuntimeError("原本画像が見つかりません。")
 
+        page_texts: list[tuple[int, str]] = []
         for page_no, key in page_items:
             logger.info("OCR処理 page_no=%s key=%s", page_no, key)
             image_bytes = storage.download_bytes(key)
@@ -74,6 +113,33 @@ def process_ingest_job(job_id: int) -> None:
                 text_source="ocr",
                 char_count=len(text),
             )
+            page_texts.append((page_no, text))
+
+        chunk_texts: list[tuple[int, str]] = []
+        for page_no, text in page_texts:
+            for chunk in _split_by_chars(text, settings.chunk_size, settings.chunk_overlap):
+                chunk_texts.append((page_no, chunk))
+
+        max_chars = int(settings.embedding_max_tokens * settings.embedding_chars_per_token)
+        chunk_texts = _cap_chunks_by_max_chars(chunk_texts, max_chars)
+
+        if chunk_texts:
+            embeddings_list = embeddings.create_embeddings([text for _, text in chunk_texts])
+            if len(embeddings_list) != len(chunk_texts):
+                raise RuntimeError("Embedding件数が一致しません。")
+
+            chunk_index = 1
+            for (page_no, text), embedding in zip(chunk_texts, embeddings_list, strict=False):
+                create_chunk(
+                    doc_id=doc["id"],
+                    uuid=new_doc_id(),
+                    chunk_index=chunk_index,
+                    content=text,
+                    page_start=page_no,
+                    page_end=page_no,
+                    embedding=embedding,
+                )
+                chunk_index += 1
 
         mark_ingest_job_done(job_id)
         update_document_status(doc["id"], "done")

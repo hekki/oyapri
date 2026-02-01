@@ -23,6 +23,9 @@ cp backend/.env.example backend/.env
 ```
 
 `.env` を編集して、さくらのオブジェクトストレージ(S3互換)の情報を設定してください。
+OCRとEmbeddingの設定もこのファイルで行います。
+チャンク分割は `CHUNK_SIZE` と `CHUNK_OVERLAP` で調整できます。embeddingの上限に合わせて小さめに設定してください。
+さらに上限対策として `EMBEDDING_MAX_TOKENS` と `EMBEDDING_CHARS_PER_TOKEN` に基づき、文字数の上限で再分割します。
 
 3. 起動
 

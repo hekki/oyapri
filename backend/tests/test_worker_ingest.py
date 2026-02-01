@@ -5,6 +5,8 @@ from app.worker.ingest import process_ingest_job
 
 
 class TestWorkerIngest(unittest.TestCase):
+    @patch("app.worker.ingest.create_chunk")
+    @patch("app.worker.ingest.SakuraEmbeddings")
     @patch("app.worker.ingest.upsert_document_page")
     @patch("app.worker.ingest.TesseractOCR")
     @patch("app.worker.ingest.S3Storage")
@@ -25,6 +27,8 @@ class TestWorkerIngest(unittest.TestCase):
         mock_storage: MagicMock,
         mock_ocr_cls: MagicMock,
         mock_upsert_page: MagicMock,
+        mock_embeddings_cls: MagicMock,
+        mock_create_chunk: MagicMock,
     ) -> None:
         mock_get_job.return_value = {"id": 1, "doc_id": 10, "attempts": 0}
         mock_get_doc.return_value = {"id": 10, "uuid": "doc-uuid", "status": "pending"}
@@ -38,11 +42,16 @@ class TestWorkerIngest(unittest.TestCase):
         ocr_instance.extract_text.return_value = "text"
         mock_ocr_cls.return_value = ocr_instance
 
+        embeddings_instance = MagicMock()
+        embeddings_instance.create_embeddings.return_value = [[0.1, 0.2]]
+        mock_embeddings_cls.return_value = embeddings_instance
+
         process_ingest_job(1)
 
         mock_mark_processing.assert_called_once()
         mock_upsert_page.assert_called_once()
         storage_instance.upload_text.assert_called_once()
+        mock_create_chunk.assert_called_once()
         mock_mark_done.assert_called_once()
         mock_update_doc_status.assert_any_call(10, "processing")
         mock_update_doc_status.assert_any_call(10, "done")
