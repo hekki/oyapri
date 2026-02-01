@@ -5,6 +5,8 @@
   font-family: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
   background-color: #f4f1ea;
   color: #1b1b1f;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 * {
@@ -28,6 +30,22 @@ body {
   gap: 32px;
 }
 
+.hero {
+  text-align: left;
+}
+
+.hero-title {
+  margin: 0 0 12px;
+  font-size: clamp(2.4rem, 4vw, 3.2rem);
+}
+
+.hero-sub {
+  margin: 0;
+  color: #4b3a2e;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
 .card {
   background: #fffaf2;
   border-radius: 24px;
@@ -49,10 +67,16 @@ h1 {
   font-size: clamp(2rem, 3vw, 2.6rem);
 }
 
+h2 {
+  margin: 0 0 12px;
+  font-size: clamp(1.4rem, 2.2vw, 1.7rem);
+}
+
 .lead {
   margin: 0 0 24px;
   color: #4b3a2e;
   line-height: 1.7;
+  font-size: 1rem;
 }
 
 .form {
@@ -83,6 +107,28 @@ h1 {
   cursor: pointer;
 }
 
+.text-input {
+  flex: 1 1 360px;
+}
+
+.text-input textarea {
+  width: 100%;
+  min-height: 140px;
+  resize: vertical;
+  border-radius: 16px;
+  border: 1px solid rgba(69, 39, 19, 0.2);
+  padding: 14px 16px;
+  font-size: 1rem;
+  line-height: 1.6;
+  background: #fff;
+  color: #1b1b1f;
+}
+
+.text-input textarea:focus {
+  outline: 2px solid rgba(208, 100, 45, 0.35);
+  border-color: rgba(208, 100, 45, 0.6);
+}
+
 button {
   border: none;
   border-radius: 999px;
@@ -107,11 +153,6 @@ button:not(:disabled):hover {
   box-shadow: 0 18px 30px rgba(208, 100, 45, 0.25);
 }
 
-.status {
-  margin-top: 20px;
-  font-weight: 500;
-}
-
 .status[data-tone="info"] {
   color: #2c4b59;
 }
@@ -124,12 +165,52 @@ button:not(:disabled):hover {
   color: #1f6b3c;
 }
 
+.quote {
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+.quote p {
+  margin: 0 0 12px;
+}
+
+.quote ul,
+.quote ol {
+  margin: 0 0 12px 18px;
+}
+
+.quote table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  font-size: 0.95rem;
+}
+
+.quote th,
+.quote td {
+  border: 1px solid rgba(69, 39, 19, 0.2);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.quote th {
+  background: rgba(208, 100, 45, 0.08);
+}
+
 .note {
   padding: 28px 32px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(69, 39, 19, 0.08);
   box-shadow: 0 18px 40px rgba(69, 39, 19, 0.08);
+}
+
+.steps {
+  margin: 0 0 20px;
+  padding-left: 18px;
+  color: #4b3a2e;
+  line-height: 1.6;
+  font-size: 0.98rem;
 }
 
 .note h2 {
@@ -142,6 +223,7 @@ button:not(:disabled):hover {
   padding-left: 18px;
   color: #4b3a2e;
   line-height: 1.6;
+  font-size: 0.98rem;
 }
 
 @media (max-width: 720px) {
@@ -159,4 +241,9 @@ button:not(:disabled):hover {
     width: 100%;
     text-align: center;
   }
+}
+.status {
+  margin-top: 20px;
+  font-weight: 500;
+  font-size: 0.98rem;
 }

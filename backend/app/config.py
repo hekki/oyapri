@@ -23,6 +23,8 @@ class Settings:
         self.ai_engine_api_token = os.environ.get("AI_ENGINE_API_TOKEN", "")
         self.ai_engine_embeddings_model = os.environ.get("AI_ENGINE_EMBEDDINGS_MODEL", "multilingual-e5-large")
         self.ai_engine_embeddings_prefix = os.environ.get("AI_ENGINE_EMBEDDINGS_PREFIX", "passage: ")
+        self.ai_engine_query_prefix = os.environ.get("AI_ENGINE_QUERY_PREFIX", "query: ")
+        self.ai_engine_chat_model = os.environ.get("AI_ENGINE_CHAT_MODEL", "")
         self.chunk_size = int(os.environ.get("CHUNK_SIZE", "250"))
         self.chunk_overlap = int(os.environ.get("CHUNK_OVERLAP", "50"))
         self.embedding_max_tokens = int(os.environ.get("EMBEDDING_MAX_TOKENS", "512"))

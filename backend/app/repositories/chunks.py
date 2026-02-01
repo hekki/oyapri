@@ -41,3 +41,25 @@ def create_chunk(
                     embedding_text,
                 ),
             )
+
+
+def search_chunks(embedding: list[float], limit: int) -> list[dict]:
+    embedding_text = json.dumps(embedding, ensure_ascii=False)
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT
+                    doc_id,
+                    page_start,
+                    page_end,
+                    content,
+                    VEC_COSINE_DISTANCE(embedding, %s) AS distance
+                FROM chunks
+                ORDER BY distance
+                LIMIT %s
+                """,
+                (embedding_text, limit),
+            )
+            rows = cur.fetchall()
+            return rows if isinstance(rows, list) else []

@@ -16,9 +16,11 @@ class SakuraEmbeddings:
         self._token = settings.ai_engine_api_token
         self._model = settings.ai_engine_embeddings_model
         self._prefix = settings.ai_engine_embeddings_prefix
+        self._query_prefix = settings.ai_engine_query_prefix
 
-    def create_embeddings(self, texts: list[str]) -> list[list[float]]:
-        inputs = [f"{self._prefix}{text}" for text in texts]
+    def create_embeddings(self, texts: list[str], prefix: str | None = None) -> list[list[float]]:
+        prefix_value = self._prefix if prefix is None else prefix
+        inputs = [f"{prefix_value}{text}" for text in texts]
         body = json.dumps({"model": self._model, "input": inputs}).encode("utf-8")
         url = f"{self._base}/embeddings"
         request = Request(
@@ -64,3 +66,6 @@ class SakuraEmbeddings:
                 raise RuntimeError("Embeddingのレスポンスが不正です。")
             embeddings.append(indexed[index])
         return embeddings
+
+    def create_query_embedding(self, text: str) -> list[float]:
+        return self.create_embeddings([text], prefix=self._query_prefix)[0]
