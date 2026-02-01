@@ -32,7 +32,7 @@ OCRとEmbeddingの設定もこのファイルで行います。
 ```bash
 curl -X POST http://localhost:8000/api/v1/search \
   -H "Content-Type: application/json" \
-  -d '{"query":"二次方程式","top_k":5}'
+  -d '{"query":"1月の行事予定","top_k":5}'
 ```
 
 ### 質問API（RAG）
@@ -40,7 +40,7 @@ curl -X POST http://localhost:8000/api/v1/search \
 ```bash
 curl -X POST http://localhost:8000/api/v1/ask \
   -H "Content-Type: application/json" \
-  -d '{"question":"二次方程式の解の公式は？","top_k":5}'
+  -d '{"question":"2月のイベントを教えて","top_k":5}'
 ```
 
 3. 起動
